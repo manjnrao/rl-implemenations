@@ -9,9 +9,11 @@ import numpy as np
 import random
 import gym
 import time
+from torch.utils.tensorboard import SummaryWriter
 
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+writer = SummaryWriter("tb_data")
 
 
 # https://github.com/openai/baselines/blob/master/baselines/ddpg/noise.py
@@ -309,6 +311,8 @@ def solve(agent, env, max_episodes, goal):
         scores.append(score)
         mean_score = np.mean(scores[-100:])
         display_progress(i_episode, start_time, mean_score)
+        writer.add_scalar("Score", score, i_episode)
+        writer.flush()
 
         if i_episode % 20 == 0:
             agent.save()
@@ -316,6 +320,7 @@ def solve(agent, env, max_episodes, goal):
         if mean_score > goal:
             print("Booyah!")
             break
+    writer.close()
 
 
 def display_progress(i_episode, start_time, score):
@@ -341,4 +346,4 @@ if __name__ == '__main__':
     env = gym.make('LunarLanderContinuous-v2')
     agent = Agent(actor_lr=0.0001, critic_lr=0.001, state_dims=8, action_dims=2)
 
-    solve(agent, env, 2000, 200)
+    solve(agent, env, 2000, 210)
