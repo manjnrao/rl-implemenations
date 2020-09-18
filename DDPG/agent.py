@@ -16,13 +16,13 @@ class Agent:
         random.seed(seed)
 
         self.actor = Actor(
-            actor_lr, state_dims, action_dims, fc1_size, fc2_size, name="Actor", seed=seed).to(device)
+            actor_lr, state_dims, action_dims, fc1_size, fc2_size, seed=seed).to(device)
         self.critic = Critic(
-            critic_lr, state_dims, action_dims, fc1_size, fc2_size, name="Critic", seed=seed).to(device)
+            critic_lr, state_dims, action_dims, fc1_size, fc2_size, seed=seed).to(device)
         self.target_actor = Actor(
-            actor_lr, state_dims, action_dims, fc1_size, fc2_size, name="TargetActor", seed=seed).to(device)
+            actor_lr, state_dims, action_dims, fc1_size, fc2_size, seed=seed).to(device)
         self.target_critic = Critic(
-            critic_lr, state_dims, action_dims, fc1_size, fc2_size, name="TargetCritic", seed=seed).to(device)
+            critic_lr, state_dims, action_dims, fc1_size, fc2_size, seed=seed).to(device)
 
         self.noise = OrnsteinUhlenbeckActionNoise(mu=np.zeros(action_dims), seed=seed)
 
@@ -114,13 +114,13 @@ class Agent:
         self.target_critic.load_state_dict(critic_params)
 
     def save(self):
-        self.actor.save()
-        self.critic.save()
-        self.target_critic.save()
-        self.target_actor.save()
+        torch.save(self.actor.state_dict(), "data/Actor.ddpg")
+        torch.save(self.critic.state_dict(), "data/Critic.ddpg")
+        torch.save(self.target_actor.state_dict(), "data/TargetActor.ddpg")
+        torch.save(self.target_critic.state_dict(), "data/TargetCritic.ddpg")
 
     def load(self):
-        self.actor.load()
-        self.critic.load()
-        self.target_actor.load()
-        self.target_critic.load()
+        self.actor.load_state_dict(torch.load("data/Actor.ddpg"))
+        self.critic.load_state_dict(torch.load("data/Critic.ddpg"))
+        self.target_actor.load_state_dict(torch.load("data/TargetActor.ddpg"))
+        self.target_critic.load_state_dict(torch.load("data/TargetCritic.ddpg"))

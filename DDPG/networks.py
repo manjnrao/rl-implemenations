@@ -1,4 +1,3 @@
-import os
 import numpy as np
 import torch
 import torch.nn as nn
@@ -7,7 +6,7 @@ import torch.optim as optim
 
 
 class Critic(nn.Module):
-    def __init__(self, lr, state_dims, action_dims, fc1_size, fc2_size, name, checkpoint_dir='tmp', seed=0):
+    def __init__(self, lr, state_dims, action_dims, fc1_size, fc2_size, seed=0):
         super(Critic, self).__init__()
         torch.manual_seed(seed)
         np.random.seed(seed)
@@ -16,7 +15,6 @@ class Critic(nn.Module):
         self.action_dims = action_dims
         self.fc1_size = fc1_size
         self.fc2_size = fc2_size
-        self.checkpoint_file = os.path.join(checkpoint_dir, name + '_ddpg.ckp')
 
         self.fc_state_1 = nn.Linear(self.state_dims, self.fc1_size)
         fs1 = 1 / np.sqrt(self.fc_state_1.weight.data.size()[0])
@@ -58,15 +56,9 @@ class Critic(nn.Module):
         q_activation = self.fc_q(q_activation)
         return q_activation
 
-    def save(self):
-        torch.save(self.state_dict(), self.checkpoint_file)
-
-    def load(self):
-        self.load_state_dict(torch.load(self.checkpoint_file))
-
 
 class Actor(nn.Module):
-    def __init__(self, lr, state_dims, action_dims, fc1_size, fc2_size, name, checkpoint_dir='tmp', seed=0):
+    def __init__(self, lr, state_dims, action_dims, fc1_size, fc2_size, seed=0):
         super(Actor, self).__init__()
         torch.manual_seed(seed)
         np.random.seed(seed)
@@ -75,7 +67,6 @@ class Actor(nn.Module):
         self.action_dims = action_dims
         self.fc1_size = fc1_size
         self.fc2_size = fc2_size
-        self.checkpoint_file = os.path.join(checkpoint_dir, name + '_ddpg.ckp')
 
         self.fc1 = nn.Linear(self.state_dims, self.fc1_size)
         f1 = 1 / np.sqrt(self.fc1.weight.data.size()[0])
@@ -107,9 +98,3 @@ class Actor(nn.Module):
 
         activation = torch.tanh(self.fc_mu(activation))
         return activation
-
-    def save(self):
-        torch.save(self.state_dict(), self.checkpoint_file)
-
-    def load(self):
-        self.load_state_dict(torch.load(self.checkpoint_file))
