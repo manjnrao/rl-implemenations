@@ -16,7 +16,7 @@ class Critic(nn.Module):
         self.fc1_size = fc1_size
         self.fc2_size = fc2_size
 
-        self.fc_state_1 = nn.Linear(self.state_dims, self.fc1_size)
+        self.fc_state_1 = nn.Linear(*self.state_dims, self.fc1_size)
         fs1 = 1 / np.sqrt(self.fc_state_1.weight.data.size()[0])
         torch.nn.init.uniform_(self.fc_state_1.weight.data, -fs1, fs1)
         torch.nn.init.uniform_(self.fc_state_1.bias.data, -fs1, fs1)
@@ -28,7 +28,7 @@ class Critic(nn.Module):
         torch.nn.init.uniform_(self.fc_state_2.bias.data, -fs2, fs2)
         self.bn2 = nn.LayerNorm(self.fc2_size)
 
-        self.fc_action_1 = nn.Linear(self.action_dims, fc2_size)
+        self.fc_action_1 = nn.Linear(*self.action_dims, fc2_size)
         fa1 = 1 / np.sqrt(self.fc_action_1.weight.data.size()[0])
         torch.nn.init.uniform_(self.fc_action_1.weight.data, -fa1, fa1)
         torch.nn.init.uniform_(self.fc_action_1.bias.data, -fa1, fa1)
@@ -68,7 +68,7 @@ class Actor(nn.Module):
         self.fc1_size = fc1_size
         self.fc2_size = fc2_size
 
-        self.fc1 = nn.Linear(self.state_dims, self.fc1_size)
+        self.fc1 = nn.Linear(*self.state_dims, self.fc1_size)
         f1 = 1 / np.sqrt(self.fc1.weight.data.size()[0])
         torch.nn.init.uniform_(self.fc1.weight.data, -f1, f1)
         torch.nn.init.uniform_(self.fc1.bias.data, -f1, f1)
@@ -80,7 +80,7 @@ class Actor(nn.Module):
         torch.nn.init.uniform_(self.fc2.bias.data, -f2, f2)
         self.bn2 = nn.LayerNorm(self.fc2_size)
 
-        self.fc_mu = nn.Linear(self.fc2_size, self.action_dims)
+        self.fc_mu = nn.Linear(self.fc2_size, *self.action_dims)
         f3 = 0.003
         torch.nn.init.uniform_(self.fc_mu.weight.data, -f3, f3)
         torch.nn.init.uniform_(self.fc_mu.bias.data, -f3, f3)

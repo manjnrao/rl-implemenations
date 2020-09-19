@@ -1,28 +1,25 @@
 import torch
 import torch.nn.functional as F
 import numpy as np
-import random
 
 from DDPG.memory import ReplayBuffer
 from DDPG.networks import Actor, Critic
 from DDPG.noise import OrnsteinUhlenbeckActionNoise
 
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
-
 class Agent:
-    def __init__(self, actor_lr, critic_lr, state_dims, action_dims, tau=0.001, gamma=0.99, buffer_size=1000000, fc1_size=400, fc2_size=300, batch_size=64, seed=0):
-        random.seed(seed)
+    def __init__(self, state_dims, action_dims, actor_lr, critic_lr, tau=0.001, gamma=0.99, buffer_size=1000000, fc1_size=400, fc2_size=300, batch_size=64, seed=0):
+
+        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
         self.actor = Actor(
-            actor_lr, state_dims, action_dims, fc1_size, fc2_size, seed=seed).to(device)
+            actor_lr, state_dims, action_dims, fc1_size, fc2_size, seed=seed).to(self.device)
         self.critic = Critic(
-            critic_lr, state_dims, action_dims, fc1_size, fc2_size, seed=seed).to(device)
+            critic_lr, state_dims, action_dims, fc1_size, fc2_size, seed=seed).to(self.device)
         self.target_actor = Actor(
-            actor_lr, state_dims, action_dims, fc1_size, fc2_size, seed=seed).to(device)
+            actor_lr, state_dims, action_dims, fc1_size, fc2_size, seed=seed).to(self.device)
         self.target_critic = Critic(
-            critic_lr, state_dims, action_dims, fc1_size, fc2_size, seed=seed).to(device)
+            critic_lr, state_dims, action_dims, fc1_size, fc2_size, seed=seed).to(self.device)
 
         self.noise = OrnsteinUhlenbeckActionNoise(mu=np.zeros(action_dims), seed=seed)
 
@@ -36,9 +33,9 @@ class Agent:
 
     def get_action(self, state):
         self.actor.eval()
-        state = torch.tensor(state, dtype=torch.float).to(device)
-        mu = self.actor(state).to(device)
-        noise = torch.tensor(self.noise(), dtype=torch.float).to(device)
+        state = torch.tensor(state, dtype=torch.float).to(self.device)
+        mu = self.actor(state).to(self.device)
+        noise = torch.tensor(self.noise(), dtype=torch.float).to(self.device)
         action = mu + noise
         self.actor.train()
 
@@ -47,11 +44,11 @@ class Agent:
     def sample_from_buffer(self):
         states, actions, rewards, next_states, dones = self.memory.sample(self.batch_size)
 
-        states = torch.tensor(states, dtype=torch.float).to(device)
-        actions = torch.tensor(actions, dtype=torch.float).to(device)
-        rewards = torch.tensor(rewards, dtype=torch.float).to(device)
-        next_states = torch.tensor(next_states, dtype=torch.float).to(device)
-        dones = torch.tensor(dones).to(device)
+        states = torch.tensor(states, dtype=torch.float).to(self.device)
+        actions = torch.tensor(actions, dtype=torch.float).to(self.device)
+        rewards = torch.tensor(rewards, dtype=torch.float).to(self.device)
+        next_states = torch.tensor(next_states, dtype=torch.float).to(self.device)
+        dones = torch.tensor(dones).to(self.device)
 
         return states, actions, rewards, next_states, dones
 
