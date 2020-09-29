@@ -2,7 +2,7 @@ import torch
 import torch.nn.functional as F
 import numpy as np
 
-from DDPG.memory import ReplayBuffer
+from common.memory import ReplayBuffer
 from DDPG.networks import Actor, Critic
 from DDPG.noise import OrnsteinUhlenbeckActionNoise
 
